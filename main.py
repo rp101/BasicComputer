@@ -1,10 +1,11 @@
-#python 3.7.1
+import array
 
 #
 #  BasicComputer
 #
 class BasicComputer:
   def __init__(self):
+    self.memory = self.Memory()
     # Registers (see CSA pg. 128)
     self.DR = self.Register(16) # Data register
     self.AR = self.Register(12) # Address register
@@ -16,7 +17,6 @@ class BasicComputer:
     self.OUTPR = self.Register(8) # Output register
     
     self.SC = self.SequenceCounter()
-    self.main_bus = self.Bus()
     
     # CSA 154pg.
     self.R = False # interrupt flip-flop
@@ -29,23 +29,21 @@ class BasicComputer:
         pass
       else:
         if self.SC.T==0:
-          self.main_bus.data = self.PC.data
-          self.AR.data = self.main_bus.data 
-          print("AR",str(self.AR.data))
+          
+          # AR <- PC
+          self.AR.data =self.PC.data  
+          
         elif self.SC.T == 1:
-          pass
-      self.SC.inc()
+          
+          # IR <- M[AR]
+          self.IR.data = self.memory.read(self.AR.data) 
+          
+          # PC <- PC+1 increment program counter
+          self.PC.inr() 
+          
+      self.SC.inr()
       n+=1
       
-      
-
-  #
-  # Buss
-  #
-  class Bus:
-    def __init__(self):
-      self.data = 0
-  
   #
   # Register
   #
@@ -56,6 +54,9 @@ class BasicComputer:
       
     def load(self, data):
       self.data = data
+      
+    def inr(self):
+      self.data += 1
   #
   # Sequence counter   
   #
@@ -63,7 +64,7 @@ class BasicComputer:
     def __init__(self):
       self.T = 0
     
-    def inc(self):
+    def inr(self):
       if self.T == 5:
         self.T = 0
       else:
@@ -73,8 +74,13 @@ class BasicComputer:
   # Memory
   #
   class Memory():
-    def __init__():
-      pass
+    def __init__(self):
+      self.data = array.array('I')
+      for i in range(65536):
+        self.data.append(0)
+        
+    def read(self, address):
+      return self.data[address]
   
  ###############################
     
