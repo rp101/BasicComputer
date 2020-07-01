@@ -21,6 +21,9 @@ class BasicComputer:
     # CSA 154pg.
     self.R = False # interrupt flip-flop
     
+    self.I = False
+    self.D = [None]*8
+    
   def run(self):
     n=-1
     while n<12:
@@ -36,10 +39,21 @@ class BasicComputer:
         elif self.SC.T == 1:
           
           # IR <- M[AR]
-          self.IR.data = self.memory.read(self.AR.data) 
+          self.IR.data  = self.memory.read(self.AR.data) 
           
           # PC <- PC+1 increment program counter
           self.PC.inr() 
+          
+        elif self.SC.T == 2:
+          
+          # AR <- IR(0-11)
+          self.AR.data =  self.IR.data & 0b0000111111111111
+          
+         
+          self.I = self.IR.data >> 15
+          self.D = self.IR.data >> 12 & 0b0111
+         
+          print(self.D)
           
       self.SC.inr()
       n+=1
@@ -78,6 +92,8 @@ class BasicComputer:
       self.data = array.array('I')
       for i in range(65536):
         self.data.append(0)
+        
+        self.data[0] = 0xafff
         
     def read(self, address):
       return self.data[address]
