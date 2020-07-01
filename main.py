@@ -22,11 +22,11 @@ class BasicComputer:
     self.R = False # interrupt flip-flop
     
     self.I = False
-    self.D = [None]*8
+    self.D = None
     
   def run(self):
-    n=-1
-    while n<12:
+    tmp=-1
+    while tmp<12:
       print("T:",str(self.SC.T))
       if self.R:
         pass
@@ -49,14 +49,35 @@ class BasicComputer:
           # AR <- IR(0-11)
           self.AR.data =  self.IR.data & 0b0000111111111111
           
-         
+          # I <- IR(15)
           self.I = self.IR.data >> 15
+          
+          # D0..D7 <- Decode(12-14)
           self.D = self.IR.data >> 12 & 0b0111
-         
-          print(self.D)
+          
+        elif self.SC.T == 3:
+          
+          # if D7=1
+          if self.D >> 2:
+            
+            # if I=1
+            if self.I:
+              pass
+            
+            # if I=0
+            else:
+              pass
+            
+            print(99)
+            
+          # if D7=0
+          else:
+            pass # do nothing
+           
+          print(bin(self.D>>2))
           
       self.SC.inr()
-      n+=1
+      tmp+=1
       
   #
   # Register
@@ -93,7 +114,7 @@ class BasicComputer:
       for i in range(65536):
         self.data.append(0)
         
-        self.data[0] = 0xafff
+        self.data[0] = 0xffff
         
     def read(self, address):
       return self.data[address]
