@@ -27,6 +27,7 @@ class BasicComputer:
   def run(self):
     tmp=-1
     while tmp<12:
+      self.SC.inr()
       print("T:",str(self.SC.T))
       if self.R:
         pass
@@ -61,29 +62,80 @@ class BasicComputer:
           if self.D >> 2:
             
             # if I=1
+            # execute I/O instruction
             if self.I:
               pass
             
             # if I=0
+            # execute register reference instruction
             else:
-              pass
+              
+              # CLA instruction
+              if self.IR.data == 0x7800:
+                self.AC.clr()
+                
+              # CLE instruction
+              elif self.IR.data == 0x7400:
+                pass
+                
+              # CMA instruction
+              elif self.IR.data == 0x7200:
+                pass
+                
+              # CME instruction
+              elif self.IR.data == 0x7100:
+                pass
+                
+              # CIR instruction
+              elif self.IR.data == 0x7080:
+                pass
+                
+              # CIL instruction
+              elif self.IR.data == 0x7040:
+                pass
+                
+              # INC instruction
+              elif self.IR.data == 0x7020:
+                pass
+                
+              # SPA instruction
+              elif self.IR.data == 0x7010:
+                pass
+                
+              # SNA instruction
+              elif self.IR.data == 0x7008:
+                pass
+                
+              # SZA instruction
+              elif self.IR.data == 0x7004:
+                pass
+                
+              # SZE instruction
+              elif self.IR.data == 0x7002:
+                pass
+                
+              # HLT instruction
+              elif self.IR.data == 0x7001:
+                pass
+                
+              self.SC.clr()
             
           # if D7=0
+          # execute memory reference instruction
           else:
             
             # if I=1
+            # indirect memory reference
             if self.I:
               
               # AR <- M[AR]
               self.AR.data = self.memory.read(self.AR.data)
-              print(99)
             
             # if I=0
+            # direct memory reference
             else:
               pass
-      print(hex(self.AR.data))
            
-      self.SC.inr()
       tmp+=1
       
   #
@@ -99,18 +151,24 @@ class BasicComputer:
       
     def inr(self):
       self.data += 1
+      
+    def clr(self):
+      self.data = 0
   #
   # Sequence counter   
   #
   class SequenceCounter:
     def __init__(self):
-      self.T = 0
+      self.T = -1 
     
     def inr(self):
       if self.T == 5:
         self.T = 0
       else:
         self.T += 1
+        
+    def clr(self):
+      self.T = -1
         
   #
   # Memory
@@ -121,7 +179,7 @@ class BasicComputer:
       for i in range(4096):
         self.data.append(0)
         
-        self.data[0] = 0x000f
+        self.data[0] = 0x7800
         self.data[1] = 0x0222
         
     def read(self, address):
