@@ -24,120 +24,116 @@ class BasicComputer:
     self.I = False
     self.D = None
     
-  def run(self):
-    tmp=-1
-    while tmp<12:
-      self.SC.inr()
-      print("T:",str(self.SC.T))
-      if self.R:
-        pass
-      else:
-        if self.SC.T==0:
+  def cycle(self):
+    self.SC.inr()
+    print("T:",str(self.SC.T))
+    if self.R:
+      pass
+    else:
+      if self.SC.T==0:
+        
+        # AR <- PC
+        self.AR.data =self.PC.data  
+        
+      elif self.SC.T == 1:
+        
+        # IR <- M[AR]
+        self.IR.data  = self.memory.read(self.AR.data) 
+        
+        # PC <- PC+1 increment program counter
+        self.PC.inr() 
+        
+      elif self.SC.T == 2:
+        
+        # AR <- IR(0-11)
+        self.AR.data =  self.IR.data & 0b0000111111111111
+        
+        # I <- IR(15)
+        self.I = self.IR.data >> 15
+        
+        # D0..D7 <- Decode(12-14)
+        self.D = self.IR.data >> 12 & 0b0111
+        
+      elif self.SC.T == 3:
+        
+        # if D7=1
+        if self.D >> 2:
           
-          # AR <- PC
-          self.AR.data =self.PC.data  
+          # if I=1
+          # execute I/O instruction
+          if self.I:
+            pass
           
-        elif self.SC.T == 1:
-          
-          # IR <- M[AR]
-          self.IR.data  = self.memory.read(self.AR.data) 
-          
-          # PC <- PC+1 increment program counter
-          self.PC.inr() 
-          
-        elif self.SC.T == 2:
-          
-          # AR <- IR(0-11)
-          self.AR.data =  self.IR.data & 0b0000111111111111
-          
-          # I <- IR(15)
-          self.I = self.IR.data >> 15
-          
-          # D0..D7 <- Decode(12-14)
-          self.D = self.IR.data >> 12 & 0b0111
-          
-        elif self.SC.T == 3:
-          
-          # if D7=1
-          if self.D >> 2:
-            
-            # if I=1
-            # execute I/O instruction
-            if self.I:
-              pass
-            
-            # if I=0
-            # execute register reference instruction
-            else:
-              
-              # CLA instruction
-              if self.IR.data == 0x7800:
-                self.AC.clr()
-                
-              # CLE instruction
-              elif self.IR.data == 0x7400:
-                pass
-                
-              # CMA instruction
-              elif self.IR.data == 0x7200:
-                pass
-                
-              # CME instruction
-              elif self.IR.data == 0x7100:
-                pass
-                
-              # CIR instruction
-              elif self.IR.data == 0x7080:
-                pass
-                
-              # CIL instruction
-              elif self.IR.data == 0x7040:
-                pass
-                
-              # INC instruction
-              elif self.IR.data == 0x7020:
-                pass
-                
-              # SPA instruction
-              elif self.IR.data == 0x7010:
-                pass
-                
-              # SNA instruction
-              elif self.IR.data == 0x7008:
-                pass
-                
-              # SZA instruction
-              elif self.IR.data == 0x7004:
-                pass
-                
-              # SZE instruction
-              elif self.IR.data == 0x7002:
-                pass
-                
-              # HLT instruction
-              elif self.IR.data == 0x7001:
-                pass
-                
-              self.SC.clr()
-            
-          # if D7=0
-          # execute memory reference instruction
+          # if I=0
+          # execute register reference instruction
           else:
             
-            # if I=1
-            # indirect memory reference
-            if self.I:
+            # CLA instruction
+            if self.IR.data == 0x7800:
+              self.AC.clr()
               
-              # AR <- M[AR]
-              self.AR.data = self.memory.read(self.AR.data)
-            
-            # if I=0
-            # direct memory reference
-            else:
+            # CLE instruction
+            elif self.IR.data == 0x7400:
               pass
+              
+            # CMA instruction
+            elif self.IR.data == 0x7200:
+              pass
+              
+            # CME instruction
+            elif self.IR.data == 0x7100:
+              pass
+              
+            # CIR instruction
+            elif self.IR.data == 0x7080:
+              pass
+              
+            # CIL instruction
+            elif self.IR.data == 0x7040:
+              pass
+              
+            # INC instruction
+            elif self.IR.data == 0x7020:
+              pass
+              
+            # SPA instruction
+            elif self.IR.data == 0x7010:
+              pass
+              
+            # SNA instruction
+            elif self.IR.data == 0x7008:
+              pass
+              
+            # SZA instruction
+            elif self.IR.data == 0x7004:
+              pass
+              
+            # SZE instruction
+            elif self.IR.data == 0x7002:
+              pass
+              
+            # HLT instruction
+            elif self.IR.data == 0x7001:
+              pass
+              
+            self.SC.clr()
+          
+        # if D7=0
+        # execute memory reference instruction
+        else:
+          
+          # if I=1
+          # indirect memory reference
+          if self.I:
+            
+            # AR <- M[AR]
+            self.AR.data = self.memory.read(self.AR.data)
+          
+          # if I=0
+          # direct memory reference
+          else:
+            pass
            
-      tmp+=1
-      
   #
   # Register
   #
@@ -188,4 +184,7 @@ class BasicComputer:
  ###############################
     
 bc = BasicComputer()
-bc.run()
+tmp=0
+while tmp<12:
+  bc.cycle()
+  tmp+=1
