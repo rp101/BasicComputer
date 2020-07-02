@@ -21,9 +21,13 @@ class BasicComputer:
     # CSA 154pg.
     self.R = False # interrupt flip-flop
     
-    self.I = False
+    self.I = 0
     self.D = None
+    self.E = 0
     
+  #
+  # cycle()
+  #
   def cycle(self):
     self.SC.inr()
     print("T:",str(self.SC.T))
@@ -62,7 +66,7 @@ class BasicComputer:
           # if I=1
           # execute I/O instruction
           if self.I:
-            pass
+            self.SC.clr()
           
           # if I=0
           # execute register reference instruction
@@ -74,7 +78,7 @@ class BasicComputer:
               
             # CLE instruction
             elif self.IR.data == 0x7400:
-              pass
+              self.E = 0
               
             # CMA instruction
             elif self.IR.data == 0x7200:
@@ -94,7 +98,7 @@ class BasicComputer:
               
             # INC instruction
             elif self.IR.data == 0x7020:
-              pass
+              self.AC.inr()
               
             # SPA instruction
             elif self.IR.data == 0x7010:
@@ -133,6 +137,27 @@ class BasicComputer:
           # direct memory reference
           else:
             pass
+          self.SC.clr()
+  #
+  # run()
+  #
+  def run(self):
+    tmp=0
+    while tmp<12:
+      self.cycle()
+      if self.SC.T == -1:
+        self.print_data()
+      tmp+=1
+  #
+  # print_data
+  #
+  def print_data(self):
+    print("")
+    print("PC:" + hex(self.PC.data), end=' ')
+    print("AC:" + hex(self.AC.data), end=' ')
+    print("E:" + str(self.E), end=' ')
+    print("")
+    print("")
            
   #
   # Register
@@ -175,7 +200,7 @@ class BasicComputer:
       for i in range(4096):
         self.data.append(0)
         
-        self.data[0] = 0x7800
+        self.data[0] = 0x7020
         self.data[1] = 0x0222
         
     def read(self, address):
@@ -184,7 +209,4 @@ class BasicComputer:
  ###############################
     
 bc = BasicComputer()
-tmp=0
-while tmp<12:
-  bc.cycle()
-  tmp+=1
+bc.run()
