@@ -68,14 +68,21 @@ class BasicComputer:
             else:
               pass
             
-            print(99)
-            
           # if D7=0
           else:
-            pass # do nothing
+            
+            # if I=1
+            if self.I:
+              
+              # AR <- M[AR]
+              self.AR.data = self.memory.read(self.AR.data)
+              print(99)
+            
+            # if I=0
+            else:
+              pass
+      print(hex(self.AR.data))
            
-          print(bin(self.D>>2))
-          
       self.SC.inr()
       tmp+=1
       
@@ -110,11 +117,12 @@ class BasicComputer:
   #
   class Memory():
     def __init__(self):
-      self.data = array.array('I')
-      for i in range(65536):
+      self.data = [0]*4096
+      for i in range(4096):
         self.data.append(0)
         
-        self.data[0] = 0xffff
+        self.data[0] = 0x000f
+        self.data[1] = 0x0222
         
     def read(self, address):
       return self.data[address]
