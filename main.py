@@ -1,4 +1,5 @@
 import array
+import math 
 
 #
 #  BasicComputer
@@ -23,7 +24,10 @@ class BasicComputer:
     
     self.I = 0
     self.D = None
-    self.E = 0
+    self.E = 1
+    
+    #tmp
+    self.AC.data=0x0001
     
   #
   # cycle()
@@ -72,21 +76,22 @@ class BasicComputer:
           # execute register reference instruction
           else:
             
-            # CLA instruction
+            # CLA instruction (clear AC)
             if self.IR.data == 0x7800:
               self.AC.clr()
               
-            # CLE instruction
+            # CLE instruction (lear E)
             elif self.IR.data == 0x7400:
               self.E = 0
               
-            # CMA instruction
+            # CMA instruction (complement AC)
             elif self.IR.data == 0x7200:
-              pass
+              self.invertBits(self.AC.data)
               
             # CME instruction
             elif self.IR.data == 0x7100:
-              pass
+              self.E = self.invertBits(self.E)
+              print(self.E)
               
             # CIR instruction
             elif self.IR.data == 0x7080:
@@ -138,12 +143,28 @@ class BasicComputer:
           else:
             pass
           self.SC.clr()
+          
+  #
+  # number bit inverter
+  #
+  def invertBits(self, num):  
+
+    # calculating number of bits  
+    # in the number  
+    x = int(math.log2(num)) + 1
+  
+    # Inverting the bits one by one  
+    for i in range(x):  
+        num = (num ^ (1 << i))  
+        
+    return num
+    
   #
   # run()
   #
   def run(self):
     tmp=0
-    while tmp<12:
+    while tmp<20:
       self.cycle()
       if self.SC.T == -1:
         self.print_data()
@@ -200,8 +221,10 @@ class BasicComputer:
       for i in range(4096):
         self.data.append(0)
         
-        self.data[0] = 0x7020
-        self.data[1] = 0x0222
+        self.data[0] = 0x7300
+        self.data[1] = 0x7200
+        self.data[2] = 0x7800
+        self.data[2] = 0x7100
         
     def read(self, address):
       return self.data[address]
