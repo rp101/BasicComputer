@@ -24,10 +24,10 @@ class BasicComputer:
     
     self.I = 0
     self.D = None
-    self.E = 1
+    self.E = 1 # carry
     
     #tmp
-    self.AC.data=0x0001
+    self.AC.data=0xff0f
     
   #
   # cycle()
@@ -76,7 +76,9 @@ class BasicComputer:
           # execute register reference instruction
           else:
             
-            # CLA instruction (clear AC)
+            # CLA instruction 
+            # clear AC
+            # AC <- 0
             if self.IR.data == 0x7800:
               self.AC.clr()
               
@@ -88,14 +90,15 @@ class BasicComputer:
             elif self.IR.data == 0x7200:
               self.invertBits(self.AC.data)
               
-            # CME instruction
+            # CME instruction (complement E)
             elif self.IR.data == 0x7100:
-              self.E = self.invertBits(self.E)
-              print(self.E)
+              if self.E == 0: self.E = 1
+              else: self.E = 0
               
             # CIR instruction
+            # 
             elif self.IR.data == 0x7080:
-              pass
+              self.AC.data = (self.AC.data >> 1)|(self.E <<15)
               
             # CIL instruction
             elif self.IR.data == 0x7040:
@@ -131,7 +134,7 @@ class BasicComputer:
         # execute memory reference instruction
         else:
           
-          # if I=1
+           # if I=1
           # indirect memory reference
           if self.I:
             
@@ -158,6 +161,13 @@ class BasicComputer:
         num = (num ^ (1 << i))  
         
     return num
+    
+  #
+  # get_bit()
+  #
+  def get_bit(self, num):
+    pass 
+    
     
   #
   # run()
@@ -221,8 +231,8 @@ class BasicComputer:
       for i in range(4096):
         self.data.append(0)
         
-        self.data[0] = 0x7300
-        self.data[1] = 0x7200
+        self.data[0] = 0x7100
+        self.data[1] = 0x7080
         self.data[2] = 0x7800
         self.data[2] = 0x7100
         
