@@ -24,10 +24,10 @@ class BasicComputer:
     
     self.I = 0
     self.D = None
-    self.E = 1 # carry
+    self.E = 0 # carry
     
     #tmp
-    self.AC.data=0x0f0f
+    self.AC.data=0x3001
     
   #
   # cycle()
@@ -104,9 +104,14 @@ class BasicComputer:
    
             # CIL instruction
             elif self.IR.data == 0x7040:
-              print(bin(self.AC.data))
-              print(bin(self.AC.data << 1 & 0b1111111111111111 | self.E)) 
-              print(bin(self.AC.data >> 15))
+              tmp_E = self.E
+              self.E = self.AC.data >> 15
+            
+              self.AC.data = (self.AC.data 
+              	| 0b10000000000000000 # making front zeros usable in left shift operation
+              	) << 1 & 0b1111111111111111 | tmp_E
+              	
+              
             # INC instruction
             elif self.IR.data == 0x7020:
               self.AC.inr()
@@ -177,7 +182,7 @@ class BasicComputer:
   #
   def run(self):
     tmp=0
-    while tmp<20:
+    while tmp<10:
       self.cycle()
       if self.SC.T == -1:
         self.print_data()
