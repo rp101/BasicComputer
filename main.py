@@ -27,7 +27,7 @@ class BasicComputer:
     self.E = 1 # carry
     
     #tmp
-    self.AC.data=0xff0f
+    self.AC.data=0x0f0f
     
   #
   # cycle()
@@ -95,15 +95,18 @@ class BasicComputer:
               if self.E == 0: self.E = 1
               else: self.E = 0
               
+            # 
             # CIR instruction
             # 
             elif self.IR.data == 0x7080:
               self.AC.data = (self.AC.data >> 1)|(self.E <<15)
-              
+              self. E = self.AC.data & 1
+   
             # CIL instruction
             elif self.IR.data == 0x7040:
-              pass
-              
+              print(bin(self.AC.data))
+              print(bin(self.AC.data << 1 & 0b1111111111111111 | self.E)) 
+              print(bin(self.AC.data >> 15))
             # INC instruction
             elif self.IR.data == 0x7020:
               self.AC.inr()
@@ -231,8 +234,8 @@ class BasicComputer:
       for i in range(4096):
         self.data.append(0)
         
-        self.data[0] = 0x7100
-        self.data[1] = 0x7080
+        self.data[0] = 0x7900
+        self.data[1] = 0x7040
         self.data[2] = 0x7800
         self.data[2] = 0x7100
         
