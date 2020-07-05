@@ -30,11 +30,13 @@ class BasicComputer:
     #tmp
     self.AC.data=0x3001
     
-  #
   # cycle()
   #
   def cycle(self):
     self.SC.inr()
+    
+    if self.SC.T == 0: print("----------------------")
+        
     print("T:",str(self.SC.T))
     if self.R:
       pass
@@ -100,9 +102,7 @@ class BasicComputer:
               if self.E == 0: self.E = 1
               else: self.E = 0
               
-            # 
             # CIR instruction
-            # 
             elif self.IR.data == 0x7080:
               self.AC.data = (self.AC.data >> 1)|(self.E <<15)
               self. E = self.AC.data & 1
@@ -166,13 +166,14 @@ class BasicComputer:
             
           self.SC.clr()
           
-  #
   # execute memory reference instruction
   #
   def memory_ref_instruction(self):
     
     print("IR:", hex(self.IR.data))
     self.DR.data = self.memory.read(self.AR.data)
+    print("DR:",hex(self.DR.data))
+    print("AR:", hex(self.AR.data))
     
     if self.D == 0:
       print("AND")
@@ -181,10 +182,10 @@ class BasicComputer:
       print("ADD")
       
     elif self.D == 2:
-      print("LDA")
+      self.AC.data = self.DR.data
           
     elif self.D == 3:
-      print("STA")
+      self.memory.write(self.AR.data, self.DR.data)
       
     elif self.D == 4:
       print("BUN")
@@ -194,7 +195,7 @@ class BasicComputer:
       
     elif self.D == 6:
       print("ISZ")
-  #
+      
   # number bit inverter
   #
   def invertBits(self, num):  
@@ -209,14 +210,12 @@ class BasicComputer:
         
     return num
     
-  #
   # get_bit()
   #
   def get_bit(self, num):
     pass 
     
     
-  #
   # run()
   #
   def run(self):
@@ -226,7 +225,7 @@ class BasicComputer:
       if self.SC.T == -1:
         self.print_data()
       tmp+=1
-  #
+      
   # print_data
   #
   def print_data(self):
@@ -235,6 +234,8 @@ class BasicComputer:
     print("AC:" + hex(self.AC.data), end=' ')
     print("E:" + str(self.E), end=' ')
     print("")
+    print("")
+    self.memory.print_data(0,3)
     print("")
            
   #
@@ -253,6 +254,7 @@ class BasicComputer:
       
     def clr(self):
       self.data = 0
+      
   #
   # Sequence counter   
   #
@@ -278,13 +280,25 @@ class BasicComputer:
       for i in range(4096):
         self.data.append(0)
         
-        self.data[0] = 0x1002
-        self.data[1] = 0xe003
+        self.data[0] = 0x2004
+        self.data[1] = 0x3003
         self.data[2] = 0x7fff
         self.data[3] = 0x0002
+        self.data[4] = 0x1234
         
     def read(self, address):
       return self.data[address]
+      
+    def write(self, address, data):
+      self.data[address] = data
+    
+    def print_data(self, from_addr, to_addr):
+      print("## MEMORY ##")
+      address = from_addr
+      while address <= to_addr:
+        print(address,":",hex(self.data[address]))
+        address += 1
+      print("############")
   
  ###############################
     
