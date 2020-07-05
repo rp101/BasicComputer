@@ -62,12 +62,6 @@ class BasicComputer:
         
         # D0..D7 <- Decode(12-14)
         self.D = self.IR.data >> 12 & 0b0111
-        print(hex(self.IR.data))
-        print(bin(self.IR.data))
-        print(bin(self.IR.data >> 12))
-        print(bin(self.IR.data >> 12 & 0b0111))
-        print("\tD:", bin(self.D))
-        
         
       elif self.SC.T == 3:
         print("IR:", bin(self.IR.data))
@@ -79,11 +73,13 @@ class BasicComputer:
           # if I=1
           # execute I/O instruction
           if self.I:
+            print("I=1")
             self.SC.clr()
           
           # if I=0
           # execute register reference instruction
           else:
+            print("I=0")
             
             # CLA instruction 
             # clear AC
@@ -150,10 +146,12 @@ class BasicComputer:
         # if D7=0
         # execute memory reference instruction
         else:
+          print("D7=0")
           
           # if I=1
           # indirect memory reference
           if self.I:
+            print("I=1")
             
             # AR <- M[AR]
             self.AR.data = self.memory.read(self.AR.data) & 0b0000111111111111
@@ -163,6 +161,7 @@ class BasicComputer:
           # if I=0
           # direct memory reference
           else:
+            print("I=0")
             self.memory_ref_instruction()
             
           self.SC.clr()
@@ -172,13 +171,29 @@ class BasicComputer:
   #
   def memory_ref_instruction(self):
     
-    print("mri")
-    print(bin(self.IR.data))
-    print(bin((self.IR.data >> 12 )& 0b0111))
+    print("IR:", hex(self.IR.data))
     self.DR.data = self.memory.read(self.AR.data)
-    #print(hex(=))
-    print(self.AC.data)
+    
+    if self.D == 0:
+      print("AND")
+      
+    elif self.D == 1:
+      print("ADD")
+      
+    elif self.D == 2:
+      print("LDA")
           
+    elif self.D == 3:
+      print("STA")
+      
+    elif self.D == 4:
+      print("BUN")
+      
+    elif self.D == 5:
+      print("BSA")
+      
+    elif self.D == 6:
+      print("ISZ")
   #
   # number bit inverter
   #
@@ -206,7 +221,7 @@ class BasicComputer:
   #
   def run(self):
     tmp=0
-    while tmp<12:
+    while tmp<8:
       self.cycle()
       if self.SC.T == -1:
         self.print_data()
@@ -263,10 +278,10 @@ class BasicComputer:
       for i in range(4096):
         self.data.append(0)
         
-        self.data[0] = 0x6fff
-        self.data[1] = 0xefff
+        self.data[0] = 0x1002
+        self.data[1] = 0xe003
         self.data[2] = 0x7fff
-        self.data[3] = 0x1234
+        self.data[3] = 0x0002
         
     def read(self, address):
       return self.data[address]
