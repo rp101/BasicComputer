@@ -7,6 +7,7 @@ import math
 class BasicComputer:
   def __init__(self):
     self.memory = self.Memory()
+    
     # Registers (see CSA pg. 128)
     self.DR = self.Register(16) # Data register
     self.AR = self.Register(12) # Address register
@@ -55,7 +56,7 @@ class BasicComputer:
         
         # AR <- IR(0-11)
         self.AR.data =  self.IR.data & 0b0000111111111111
-        
+       
         # I <- IR(15)
         self.I = self.IR.data >> 15
         
@@ -101,16 +102,16 @@ class BasicComputer:
             elif self.IR.data == 0x7080:
               self.AC.data = (self.AC.data >> 1)|(self.E <<15)
               self. E = self.AC.data & 1
-   
+              
             # CIL instruction
             elif self.IR.data == 0x7040:
               tmp_E = self.E
               self.E = self.AC.data >> 15
             
               self.AC.data = (self.AC.data 
-              	| 0b10000000000000000 # making front zeros usable in left shift operation
-              	) << 1 & 0b1111111111111111 | tmp_E
-              	
+                | 0b10000000000000000 # making front zeros usable in left shift operation
+                ) << 1 & 0b1111111111111111 | tmp_E
+                
               
             # INC instruction
             elif self.IR.data == 0x7020:
@@ -142,18 +143,32 @@ class BasicComputer:
         # execute memory reference instruction
         else:
           
-           # if I=1
+          # if I=1
           # indirect memory reference
           if self.I:
             
             # AR <- M[AR]
-            self.AR.data = self.memory.read(self.AR.data)
+            self.AR.data = self.memory.read(self.AR.data) & 0b0000111111111111
+            
+            self.memory_ref_instruction()
           
           # if I=0
           # direct memory reference
           else:
-            pass
+            self.memory_ref_instruction()
+            
           self.SC.clr()
+          
+  #
+  # execute memory reference instruction
+  #
+  def memory_ref_instruction(self):
+    
+    print("mri")
+    print(bin((self.IR.data >> 12 )& 0b0111))
+    self.DR.data = self.memory.read(self.AR.data)
+    print(hex(=))
+    print(self.AC.data)
           
   #
   # number bit inverter
@@ -240,9 +255,9 @@ class BasicComputer:
         self.data.append(0)
         
         self.data[0] = 0x7900
-        self.data[1] = 0x7040
-        self.data[2] = 0x7800
-        self.data[2] = 0x7100
+        self.data[1] = 0x8001
+        self.data[2] = 0x0003
+        self.data[3] = 0x1234
         
     def read(self, address):
       return self.data[address]
