@@ -9,14 +9,14 @@ class BasicComputer:
     self.memory = self.Memory()
     
     # Registers (see CSA pg. 128)
-    self.DR = self.Register(16) # Data register
-    self.AR = self.Register(12) # Address register
-    self.AC = self.Register(16) # Accumulator
-    self.IR = self.Register(16) # Instruction register
-    self.PC = self.Register(12) # Program counter
-    self.TR = self.Register(16) # Temporary register
-    self.INPR = self.Register(8) # Input register
-    self.OUTPR = self.Register(8) # Output register
+    self.DR = 0 # Data register
+    self.AR = 0 # Address register
+    self.AC = 0 # Accumulator
+    self.IR = 0 # Instruction register
+    self.PC = 0 # Program counter
+    self.TR = 0 # Temporary register
+    self.INPR = 0 # Input register
+    self.OUTPR = 0 # Output register
     
     self.SC = self.SequenceCounter()
     
@@ -28,7 +28,7 @@ class BasicComputer:
     self.E = 0 # carry
     
     #tmp
-    self.AC.data=0x3001
+    self.AC=0x3001
     
   # cycle()
   #
@@ -44,29 +44,29 @@ class BasicComputer:
       if self.SC.T==0:
         
         # AR <- PC
-        self.AR.data =self.PC.data  
+        self.AR=self.PC
         
       elif self.SC.T == 1:
         
         # IR <- M[AR]
-        self.IR.data  = self.memory.read(self.AR.data) 
+        self.IR  = self.memory.read(self.AR) 
         
         # PC <- PC+1 increment program counter
-        self.PC.inr() 
+        self.PC += 1
         
       elif self.SC.T == 2:
         
         # AR <- IR(0-11)
-        self.AR.data =  self.IR.data & 0b0000111111111111
+        self.AR =  self.IR & 0b0000111111111111
        
         # I <- IR(15)
-        self.I = self.IR.data >> 15
+        self.I = self.IR >> 15
         
         # D0..D7 <- Decode(12-14)
-        self.D = self.IR.data >> 12 & 0b0111
+        self.D = self.IR >> 12 & 0b0111
         
       elif self.SC.T == 3:
-        print("IR:", bin(self.IR.data))
+        print("IR:", bin(self.IR))
         
         # if D7=1
         if self.D == 7:
@@ -86,59 +86,59 @@ class BasicComputer:
             # CLA instruction 
             # clear AC
             # AC <- 0
-            if self.IR.data == 0x7800:
+            if self.IR == 0x7800:
               self.AC.clr()
               
             # CLE instruction (lear E)
-            elif self.IR.data == 0x7400:
+            elif self.IR == 0x7400:
               self.E = 0
               
             # CMA instruction (complement AC)
-            elif self.IR.data == 0x7200:
-              self.invertBits(self.AC.data)
+            elif self.IR == 0x7200:
+              self.invertBits(self.AC)
               
             # CME instruction (complement E)
-            elif self.IR.data == 0x7100:
+            elif self.IR == 0x7100:
               if self.E == 0: self.E = 1
               else: self.E = 0
               
             # CIR instruction
-            elif self.IR.data == 0x7080:
-              self.AC.data = (self.AC.data >> 1)|(self.E <<15)
-              self. E = self.AC.data & 1
+            elif self.IR == 0x7080:
+              self.AC= (self.AC>> 1)|(self.E <<15)
+              self. E = self.AC& 1
               
             # CIL instruction
-            elif self.IR.data == 0x7040:
+            elif self.IR== 0x7040:
               tmp_E = self.E
-              self.E = self.AC.data >> 15
+              self.E = self.AC>> 15
             
-              self.AC.data = (self.AC.data 
+              self.AC= (self.AC
                 | 0b10000000000000000 # making front zeros usable in left shift operation
                 ) << 1 & 0b1111111111111111 | tmp_E
                 
               
             # INC instruction
-            elif self.IR.data == 0x7020:
-              self.AC.inr()
-              
+            elif self.IR== 0x7020:
+              self.AC =+ 1
+            
             # SPA instruction
-            elif self.IR.data == 0x7010:
+            elif self.IR== 0x7010:
               pass
               
             # SNA instruction
-            elif self.IR.data == 0x7008:
+            elif self.IR== 0x7008:
               pass
               
             # SZA instruction
-            elif self.IR.data == 0x7004:
+            elif self.IR== 0x7004:
               pass
               
             # SZE instruction
-            elif self.IR.data == 0x7002:
+            elif self.IR== 0x7002:
               pass
               
             # HLT instruction
-            elif self.IR.data == 0x7001:
+            elif self.IR== 0x7001:
               pass
               
             self.SC.clr()
@@ -154,7 +154,7 @@ class BasicComputer:
             print("I=1")
             
             # AR <- M[AR]
-            self.AR.data = self.memory.read(self.AR.data) & 0b0000111111111111
+            self.AR= self.memory.read(self.AR) & 0b0000111111111111
             
             self.memory_ref_instruction()
           
@@ -170,10 +170,10 @@ class BasicComputer:
   #
   def memory_ref_instruction(self):
     
-    print("IR:", hex(self.IR.data))
-    self.DR.data = self.memory.read(self.AR.data)
-    print("DR:",hex(self.DR.data))
-    print("AR:", hex(self.AR.data))
+    print("IR:", hex(self.IR))
+    self.DR= self.memory.read(self.AR)
+    print("DR:",hex(self.DR))
+    print("AR:", hex(self.AR))
     
     if self.D == 0:
       print("AND")
@@ -182,10 +182,10 @@ class BasicComputer:
       print("ADD")
       
     elif self.D == 2:
-      self.AC.data = self.DR.data
+      self.AC= self.DR
           
     elif self.D == 3:
-      self.memory.write(self.AR.data, self.AC.data)
+      self.memory.write(self.AR, self.AC)
       
     elif self.D == 4:
       print("BUN")
@@ -230,31 +230,14 @@ class BasicComputer:
   #
   def print_data(self):
     print("")
-    print("PC:" + hex(self.PC.data), end=' ')
-    print("AC:" + hex(self.AC.data), end=' ')
+    print("PC:" + hex(self.PC), end=' ')
+    print("AC:" + hex(self.AC), end=' ')
     print("E:" + str(self.E), end=' ')
     print("")
     print("")
     self.memory.print_data(0,4)
     print("")
            
-  #
-  # Register
-  #
-  class Register:
-    def __init__(self, n_bits):
-      self.n_bits = n_bits # number of bits
-      self.data = 0
-      
-    def load(self, data):
-      self.data = data
-      
-    def inr(self):
-      self.data += 1
-      
-    def clr(self):
-      self.data = 0
-      
   #
   # Sequence counter   
   #
