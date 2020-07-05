@@ -185,7 +185,7 @@ class BasicComputer:
       self.AC.data = self.DR.data
           
     elif self.D == 3:
-      self.memory.write(self.AR.data, self.DR.data)
+      self.memory.write(self.AR.data, self.AC.data)
       
     elif self.D == 4:
       print("BUN")
@@ -235,7 +235,7 @@ class BasicComputer:
     print("E:" + str(self.E), end=' ')
     print("")
     print("")
-    self.memory.print_data(0,3)
+    self.memory.print_data(0,4)
     print("")
            
   #
