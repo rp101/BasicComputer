@@ -62,11 +62,19 @@ class BasicComputer:
         
         # D0..D7 <- Decode(12-14)
         self.D = self.IR.data >> 12 & 0b0111
+        print(hex(self.IR.data))
+        print(bin(self.IR.data))
+        print(bin(self.IR.data >> 12))
+        print(bin(self.IR.data >> 12 & 0b0111))
+        print("\tD:", bin(self.D))
+        
         
       elif self.SC.T == 3:
+        print("IR:", bin(self.IR.data))
         
         # if D7=1
-        if self.D >> 2:
+        if self.D == 7:
+          print("D7=1")
           
           # if I=1
           # execute I/O instruction
@@ -165,9 +173,10 @@ class BasicComputer:
   def memory_ref_instruction(self):
     
     print("mri")
+    print(bin(self.IR.data))
     print(bin((self.IR.data >> 12 )& 0b0111))
     self.DR.data = self.memory.read(self.AR.data)
-    print(hex(=))
+    #print(hex(=))
     print(self.AC.data)
           
   #
@@ -197,7 +206,7 @@ class BasicComputer:
   #
   def run(self):
     tmp=0
-    while tmp<10:
+    while tmp<12:
       self.cycle()
       if self.SC.T == -1:
         self.print_data()
@@ -254,9 +263,9 @@ class BasicComputer:
       for i in range(4096):
         self.data.append(0)
         
-        self.data[0] = 0x7900
-        self.data[1] = 0x8001
-        self.data[2] = 0x0003
+        self.data[0] = 0x6fff
+        self.data[1] = 0xefff
+        self.data[2] = 0x7fff
         self.data[3] = 0x1234
         
     def read(self, address):
